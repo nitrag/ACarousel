@@ -140,9 +140,10 @@ extension ACarouselViewModel {
     
     var offsetAnimation: Animation? {
         guard isWrap else {
-            return .spring()
+            return .smooth
         }
-        return isAnimatedOffset ? .spring() : .none
+
+        return isAnimatedOffset ? .smooth : .none
     }
     
     var itemWidth: CGFloat {
@@ -275,9 +276,9 @@ extension ACarouselViewModel {
         /// Defines the drag threshold
         /// At the end of the drag, if the drag value exceeds the drag threshold,
         /// the active view will be toggled
-        /// default is one third of subview
-        let dragThreshold: CGFloat = itemWidth / 3
-        
+        /// default is one fifth of subview
+        let dragThreshold: CGFloat = itemWidth / 5
+
         var activeIndex = self.activeIndex
         if value.translation.width > dragThreshold {
             activeIndex -= 1
