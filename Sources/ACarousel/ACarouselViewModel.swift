@@ -297,7 +297,7 @@ extension ACarouselViewModel {
         /// increments of one and compare to the scrolling duration
         /// return when timing less than duration
         activeTiming()
-        timing += 1
+
         if timing < autoScroll.interval {
             return
         }
@@ -311,6 +311,7 @@ extension ACarouselViewModel {
             /// Incremental, calculation of offset by `offsetChanged(_: proxy:)`
             activeIndex += 1
         }
+        
         resetTiming()
     }
     
