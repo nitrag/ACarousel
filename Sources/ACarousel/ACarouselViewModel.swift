@@ -20,10 +20,14 @@
 
 import SwiftUI
 import Combine
+import os
 
 @available(iOS 13.0, OSX 10.15, *)
 class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCollection, ID : Hashable {
-    
+    @available(iOS 14.0, *)
+    private var logger: Logger {
+        return .init(subsystem: "ACarousel", category: "ACarouselViewModel")
+    }
     /// external index
     @Binding
     private var index: Int
@@ -317,7 +321,7 @@ extension ACarouselViewModel {
     
     
     /// reset counting of time
-    private func resetTiming() {
+    func resetTiming() {
         timing = 0
     }
     

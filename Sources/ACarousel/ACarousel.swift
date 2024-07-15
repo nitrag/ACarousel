@@ -19,11 +19,15 @@
  */
 
 import SwiftUI
-
+import os
 
 @available(iOS 13.0, OSX 10.15, *)
 public struct ACarousel<Data, ID, Content> : View where Data : RandomAccessCollection, ID : Hashable, Content : View {
-    
+    @available(iOS 14.0, *)
+    private var logger: Logger {
+        return .init(subsystem: "ACarousel", category: "ACarousel")
+    }
+
     @ObservedObject
     private var viewModel: ACarouselViewModel<Data, ID>
     private let content: (Data.Element) -> Content
@@ -49,6 +53,13 @@ public struct ACarousel<Data, ID, Content> : View where Data : RandomAccessColle
         .animation(viewModel.offsetAnimation, value: viewModel.offset)
         .onReceive(timer: viewModel.timer, perform: viewModel.receiveTimer)
         .onReceiveAppLifeCycle(perform: viewModel.setTimerActive)
+        .onDisappear(perform: {
+            viewModel.setTimerActive(false)
+        })
+        .onAppear(perform: {
+            viewModel.resetTiming()
+            viewModel.setTimerActive(true)
+        })
     }
 }
 

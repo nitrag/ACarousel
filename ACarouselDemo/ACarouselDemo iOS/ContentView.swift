@@ -16,7 +16,6 @@ struct Item: Identifiable {
 let roles = ["Luffy", "Zoro", "Sanji", "Nami", "Usopp", "Chopper", "Robin", "Franky", "Brook"]
 
 struct ContentView: View {
-    
     @State var spacing: CGFloat = 10
     @State var headspace: CGFloat = 10
     @State var sidesScaling: CGFloat = 0.8
@@ -58,7 +57,6 @@ struct ContentView: View {
 }
 
 struct ControlPanel: View {
-    
     @Binding var spacing: CGFloat
     @Binding var headspace: CGFloat
     @Binding var sidesScaling: CGFloat
