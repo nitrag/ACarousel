@@ -38,18 +38,18 @@ A carousel view for SwiftUI
 
 ### Swift Package Manager
 
-Open `Xcode`, go to `File -> Swift Packages -> Add Package Dependency` and enter `https://github.com/JWAutumn/ACarousel`
+Open `Xcode`, go to `File -> Swift Packages -> Add Package Dependency` and enter `https://github.com/yingntck/CarouselSwiftUI`
 
 You can also add `ACarousel` as a dependency to your `Package.swift`:
 ```swift
 dependencies: [
-  .package(url: "https://github.com/JWAutumn/ACarousel", from: "0.2.0")
+  .package(URL: "https://github.com/yingntck/CarouselSwiftUI", from: "0.2.0")
 ]
 ```
 
 ### Manually
 
-[Download](https://github.com/JWAutumn/ACarousel/archive/main.zip) and open the project, drag the `ACarousel.swift` file into your own project.
+[Download](https://github.com/yingntck/CarouselSwiftUI/archive/main.zip) and open the project, drag the `ACarousel.swift` file into your own project.
 
 ## Usage
 
@@ -125,7 +125,7 @@ struct ContentView: View {
 
 
 ## Example
-[Download](https://github.com/JWAutumn/ACarousel/archive/main.zip) and open `ACarouselDemo -> ACarouselDemo.xcodeproj`, run and view.
+[Download](https://github.com/yingntck/CarouselSwiftUI/archive/main.zip) and open `ACarouselDemo -> ACarouselDemo.xcodeproj`, run and view.
 
 ## Maintainers
 
