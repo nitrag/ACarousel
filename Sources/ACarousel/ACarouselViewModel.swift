@@ -20,10 +20,14 @@
 
 import SwiftUI
 import Combine
+import os
 
 @available(iOS 13.0, OSX 10.15, *)
 class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCollection, ID : Hashable {
-    
+    @available(iOS 14.0, *)
+    private var logger: Logger {
+        return .init(subsystem: "ACarousel", category: "ACarouselViewModel")
+    }
     /// external index
     @Binding
     private var index: Int
@@ -136,9 +140,10 @@ extension ACarouselViewModel {
     
     var offsetAnimation: Animation? {
         guard isWrap else {
-            return .spring()
+            return .smooth
         }
-        return isAnimatedOffset ? .spring() : .none
+
+        return isAnimatedOffset ? .smooth : .none
     }
     
     var itemWidth: CGFloat {
@@ -271,9 +276,9 @@ extension ACarouselViewModel {
         /// Defines the drag threshold
         /// At the end of the drag, if the drag value exceeds the drag threshold,
         /// the active view will be toggled
-        /// default is one third of subview
-        let dragThreshold: CGFloat = itemWidth / 3
-        
+        /// default is one fifth of subview
+        let dragThreshold: CGFloat = itemWidth / 5
+
         var activeIndex = self.activeIndex
         if value.translation.width > dragThreshold {
             activeIndex -= 1
@@ -297,7 +302,7 @@ extension ACarouselViewModel {
         /// increments of one and compare to the scrolling duration
         /// return when timing less than duration
         activeTiming()
-        timing += 1
+
         if timing < autoScroll.interval {
             return
         }
@@ -311,12 +316,13 @@ extension ACarouselViewModel {
             /// Incremental, calculation of offset by `offsetChanged(_: proxy:)`
             activeIndex += 1
         }
+        
         resetTiming()
     }
     
     
     /// reset counting of time
-    private func resetTiming() {
+    func resetTiming() {
         timing = 0
     }
     
