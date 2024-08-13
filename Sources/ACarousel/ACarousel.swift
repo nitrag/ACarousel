@@ -53,13 +53,13 @@ public struct ACarousel<Data, ID, Content> : View where Data : RandomAccessColle
         .animation(viewModel.offsetAnimation, value: viewModel.offset)
         .onReceive(timer: viewModel.timer, perform: viewModel.receiveTimer)
         .onReceiveAppLifeCycle(perform: viewModel.setTimerActive)
-        .onDisappear(perform: {
+        .onDisappear {
             viewModel.setTimerActive(false)
-        })
-        .onAppear(perform: {
+        }
+        .onAppear {
             viewModel.resetTiming()
             viewModel.setTimerActive(true)
-        })
+        }
     }
 }
 
