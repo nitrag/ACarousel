@@ -206,9 +206,9 @@ extension ACarouselViewModel {
     /// current offset value
     var offset: CGFloat {
         let activeOffset = CGFloat(activeIndex) * itemActualWidth
-        return defaultPadding - activeOffset + dragOffset
+        return isWrap ? defaultPadding - activeOffset + dragOffset : -activeOffset + dragOffset
     }
-    
+
     /// change offset when acitveItem changes
     private func changeOffset() {
         isAnimatedOffset = true
