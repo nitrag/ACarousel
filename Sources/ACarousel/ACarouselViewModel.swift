@@ -36,9 +36,11 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
     private let _sidesScaling: CGFloat
     private let _autoScroll: ACarouselAutoScroll
     private let _canMove: Bool
-    
-    init(_ data: Data, id: KeyPath<Data.Element, ID>, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool) {
-        
+
+    private let _animation: (() -> Animation)?
+
+    init(_ data: Data, id: KeyPath<Data.Element, ID>, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool, animation: (() -> Animation)? = nil) {
+
         guard index.wrappedValue < data.count else {
             fatalError("The index should be less than the count of data ")
         }
@@ -51,7 +53,8 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
         self._sidesScaling = sidesScaling
         self._autoScroll = autoScroll
         self._canMove = canMove
-        
+        self._animation = animation
+
         if data.count > 1 && isWrap {
             activeIndex = index.wrappedValue + 1
         } else {
@@ -105,9 +108,9 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
 
 extension ACarouselViewModel where ID == Data.Element.ID, Data.Element : Identifiable {
     
-    convenience init(_ data: Data, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool) {
-        self.init(data, id: \.id, index: index, spacing: spacing, headspace: headspace, sidesScaling: sidesScaling, isWrap: isWrap, autoScroll: autoScroll, canMove: canMove)
-    }
+    convenience init(_ data: Data, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool, animation: (() -> Animation)? = nil) {
+         self.init(data, id: \.id, index: index, spacing: spacing, headspace: headspace, sidesScaling: sidesScaling, isWrap: isWrap, autoScroll: autoScroll, canMove: canMove, animation: animation)
+     }
 }
 
 
@@ -136,11 +139,11 @@ extension ACarouselViewModel {
     
     var offsetAnimation: Animation? {
         guard isWrap else {
-            return .spring()
+            return _animation?() ?? .spring()
         }
-        return isAnimatedOffset ? .spring() : .none
+        return isAnimatedOffset ? (_animation?() ?? .spring()) : .none
     }
-    
+
     var itemWidth: CGFloat {
         max(0, viewSize.width - defaultPadding * 2)
     }
