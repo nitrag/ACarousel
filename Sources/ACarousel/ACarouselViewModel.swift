@@ -276,14 +276,17 @@ extension ACarouselViewModel {
         /// the active view will be toggled
         /// default is one third of subview
         let dragThreshold: CGFloat = itemWidth / 3
-        
+
+        let translation = Locale.isRTL ? -value.translation.width : value.translation.width
+
+
         var activeIndex = self.activeIndex
-        if value.translation.width > dragThreshold {
-            activeIndex -= 1
-        }
-        if value.translation.width < -dragThreshold {
-            activeIndex += 1
-        }
+        if translation > dragThreshold {
+              activeIndex -= 1 // Move to the previous item
+          }
+          if translation < -dragThreshold {
+              activeIndex += 1 // Move to the next item
+          }
         self.activeIndex = max(0, min(activeIndex, data.count - 1))
     }
 }
@@ -345,3 +348,4 @@ private extension UserDefaults {
         }
     }
 }
+
