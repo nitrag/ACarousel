@@ -244,15 +244,18 @@ extension ACarouselViewModel {
         guard _canMove else { return }
         
         isAnimatedOffset = true
-        
+
+        let translation = Locale.isRTL ? -value.translation.width : value.translation.width
+
         /// Defines the maximum value of the drag
         /// Avoid dragging more than the values of multiple subviews at the end of the drag,
         /// and still only one subview is toggled
         var offset: CGFloat = itemActualWidth
-        if value.translation.width > 0 {
-            offset = min(offset, value.translation.width)
+
+        if translation > 0 {
+            offset = min(offset, translation)
         } else {
-            offset = max(-offset, value.translation.width)
+            offset = max(-offset, translation)
         }
         
         /// set drag offset
