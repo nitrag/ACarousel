@@ -40,9 +40,12 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
     private let _sidesScaling: CGFloat
     private let _autoScroll: ACarouselAutoScroll
     private let _canMove: Bool
-    
-    init(_ data: Data, id: KeyPath<Data.Element, ID>, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool) {
-        
+    fileprivate let _isRTL: Bool
+
+    private let _animation: (() -> Animation)?
+
+    init(_ data: Data, id: KeyPath<Data.Element, ID>, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool, isRTL: Bool, animation: (() -> Animation)? = nil) {
+
         guard index.wrappedValue < data.count else {
             fatalError("The index should be less than the count of data ")
         }
@@ -55,7 +58,9 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
         self._sidesScaling = sidesScaling
         self._autoScroll = autoScroll
         self._canMove = canMove
-        
+        self._animation = animation
+        self._isRTL = isRTL
+
         if data.count > 1 && isWrap {
             activeIndex = index.wrappedValue + 1
         } else {
@@ -109,9 +114,9 @@ class ACarouselViewModel<Data, ID>: ObservableObject where Data : RandomAccessCo
 
 extension ACarouselViewModel where ID == Data.Element.ID, Data.Element : Identifiable {
     
-    convenience init(_ data: Data, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool) {
-        self.init(data, id: \.id, index: index, spacing: spacing, headspace: headspace, sidesScaling: sidesScaling, isWrap: isWrap, autoScroll: autoScroll, canMove: canMove)
-    }
+    convenience init(_ data: Data, index: Binding<Int>, spacing: CGFloat, headspace: CGFloat, sidesScaling: CGFloat, isWrap: Bool, autoScroll: ACarouselAutoScroll, canMove: Bool, isRTL: Bool, animation: (() -> Animation)? = nil) {
+        self.init(data, id: \.id, index: index, spacing: spacing, headspace: headspace, sidesScaling: sidesScaling, isWrap: isWrap, autoScroll: autoScroll, canMove: canMove, isRTL: isRTL, animation: animation)
+     }
 }
 
 
@@ -145,7 +150,7 @@ extension ACarouselViewModel {
 
         return isAnimatedOffset ? .smooth : .none
     }
-    
+
     var itemWidth: CGFloat {
         max(0, viewSize.width - defaultPadding * 2)
     }
@@ -246,15 +251,18 @@ extension ACarouselViewModel {
         guard _canMove else { return }
         
         isAnimatedOffset = true
-        
+
+        let translation = _isRTL ? -value.translation.width : value.translation.width
+
         /// Defines the maximum value of the drag
         /// Avoid dragging more than the values of multiple subviews at the end of the drag,
         /// and still only one subview is toggled
         var offset: CGFloat = itemActualWidth
-        if value.translation.width > 0 {
-            offset = min(offset, value.translation.width)
+
+        if translation > 0 {
+            offset = min(offset, translation)
         } else {
-            offset = max(-offset, value.translation.width)
+            offset = max(-offset, translation)
         }
         
         /// set drag offset
@@ -266,28 +274,36 @@ extension ACarouselViewModel {
     
     private func dragEnded(_ value: DragGesture.Value) {
         guard _canMove else { return }
-        /// reset drag offset
+
+        /// Reset drag offset
         dragOffset = .zero
-        
-        /// reset timing and restart active timer
+
+        /// Reset timing and restart active timer
         resetTiming()
         isTimerActive = true
-        
-        /// Defines the drag threshold
-        /// At the end of the drag, if the drag value exceeds the drag threshold,
-        /// the active view will be toggled
-        /// default is one fifth of subview
-        let dragThreshold: CGFloat = itemWidth / 5
 
+        /// Defines the drag threshold (1/3 of item width)
+        let dragThreshold: CGFloat = itemWidth / 3
+
+        /// Adjust translation based on locale's direction
+        let translation = value.translation.width 
+        
         var activeIndex = self.activeIndex
-        if value.translation.width > dragThreshold {
-            activeIndex -= 1
+        if translation > dragThreshold {
+            // RTL: Move to next item; LTR: Move to previous item
+            activeIndex += _isRTL ? 1 : -1
         }
-        if value.translation.width < -dragThreshold {
-            activeIndex += 1
+        if translation < -dragThreshold {
+            // RTL: Move to previous item; LTR: Move to next item
+            activeIndex += _isRTL ? -1 : 1
         }
+
+        /// Clamp the active index within valid bounds
         self.activeIndex = max(0, min(activeIndex, data.count - 1))
+
     }
+
+
 }
 
 // MARK: - Receive Timer
@@ -348,3 +364,4 @@ private extension UserDefaults {
         }
     }
 }
+
